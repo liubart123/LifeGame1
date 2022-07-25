@@ -14,15 +14,13 @@ using UnityEngine.Profiling;
 /// <summary>
 /// Contains all for game life playing
 /// </summary>
-public class LifeGameController : SingletonBehavior<LifeGameController>
+public class LifeGameController : Singleton<LifeGameController>
 {
     public int mapWidth = 100, mapHeight = 100;
     public int[] neuronsNumberInLayers = new int[] {5,6,4};
     public int countOfTicksInIteration = 50;
     public int countOfUnits = 200, countOfAncestors = 10;
     public int currentIterationCount = 0;
-
-    public UserInputController userInputController;
 
     public void SetUpNewLifeGame()
     {
@@ -71,10 +69,16 @@ public class LifeGameController : SingletonBehavior<LifeGameController>
 
     public void RunMultipleIterations(int iterations)
     {
-        for(int i = 0; i < iterations; i++)
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
+        for (int i = 0; i < iterations; i++)
         {
             RunTicksToTheEndOfIteration();
             SetUpNewLifeIteration();
         }
+
+        sw.Stop();
+        Debug.Log($"Skip iterations passed. Elapsed={sw.Elapsed}");
     }
 }

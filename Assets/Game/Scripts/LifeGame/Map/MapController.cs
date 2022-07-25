@@ -79,7 +79,10 @@ namespace Assets.Game.Scripts.LifeGame.Map
                 return null;
             return GetCell(neighbourPos);
         }
-
+        public bool IsEndOfMap(Vector2Int pos)
+        {
+            return pos.x == 0 || pos.y == 0 || pos.x == width - 1 || pos.y == height - 1;
+        }
         public bool IsPositionInsideTheMap(Vector2Int pos)
         {
             return pos.x >= 0 && pos.y >= 0 && pos.x < width && pos.y < height;

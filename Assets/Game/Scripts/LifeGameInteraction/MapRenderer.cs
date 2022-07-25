@@ -105,9 +105,9 @@ public class MapRenderer : MonoBehaviour
         }
 
         var vectorColor = new Vector3(
-            sum1 % 255 / 255f,
-            sum2 % 255 / 255f,
-            sum3 % 255 / 255f
+            Mathf.Abs(sum1) % 255 / 255f,
+            Mathf.Abs(sum2) % 255 / 255f,
+            Mathf.Abs(sum3) % 255 / 255f
             ).normalized*2;
         return new Color(vectorColor.x, vectorColor.y, vectorColor.z);
     }

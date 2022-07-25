@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(LifeGameController))]
-public class LifeGameController_Inspector : Editor
+[CustomEditor(typeof(UserInputController))]
+public class UserInputController_Inspector : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        var myScript = target as LifeGameController;
+        var myScript = target as UserInputController;
 
         if (GUILayout.Button("New life game"))
-            myScript.userInputController.SetUpNewLifeGame();
+            myScript.SetUpNewLifeGame();
         if (GUILayout.Button("New iteration"))
-            myScript.userInputController.SetUpNewLifeIteration();
+            myScript.SetUpNewLifeIteration();
         if (GUILayout.Button("Finish iteration"))
-            myScript.userInputController.RunTicksToTheEndOfIteration();
+            myScript.RunTicksToTheEndOfIteration();
         if (GUILayout.Button("Skip iteration"))
-            myScript.userInputController.SkipIterations();
+            myScript.SkipIterations();
+        if (GUILayout.Button("Tick"))
+            myScript.RunTick();
         if (GUILayout.Button("Play"))
-            myScript.userInputController.PlayTicksSequently();
+            myScript.PlayTicksSequently();
     }
 }

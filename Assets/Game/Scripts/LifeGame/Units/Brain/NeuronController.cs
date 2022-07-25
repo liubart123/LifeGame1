@@ -66,17 +66,40 @@ namespace Assets.Game.Scripts.LifeGame.Units.Brain
             Profiler.EndSample();
 
             Profiler.BeginSample("PerformActionByNeuronIndex");
-            neuronActionController.PerformActionByNeuronIndex(choosedNeuron, unit);
+            lock (this)
+            {
+                neuronActionController.PerformActionByNeuronIndex(choosedNeuron, unit);
+            }
             Profiler.EndSample();
         }
 
         void SetInputNeurons(Unit unit)
         {
-            SetInputNeuron(0, unit.position.x / (float)mapController.width);
-            SetInputNeuron(1, (mapController.width - unit.position.x) / (float)mapController.width);
-            SetInputNeuron(2, unit.position.y / (float)mapController.height);
-            SetInputNeuron(3, (mapController.height - unit.position.y) / (float)mapController.height);
-            SetInputNeuron(4, 1);
+            int i = 0;
+            SetInputNeuron(i++, unit.position.x / (float)mapController.width);
+            SetInputNeuron(i++, (mapController.width - unit.position.x) / (float)mapController.width);
+            SetInputNeuron(i++, unit.position.y / (float)mapController.height);
+            SetInputNeuron(i++, (mapController.height - unit.position.y) / (float)mapController.height);
+            SetInputNeuron(i++, 1);
+
+            SetInputNeuron(i++,
+                mapController.GetNeighbour(
+                    unit.position, MapController.EDirection.up)
+                ?.IsFree() == true ? 1 : 0);
+            SetInputNeuron(i++,
+                mapController.GetNeighbour(
+                    unit.position, MapController.EDirection.right)
+                ?.IsFree() == true ? 1 : 0);
+            SetInputNeuron(i++,
+                mapController.GetNeighbour(
+                    unit.position, MapController.EDirection.down)
+                ?.IsFree() == true ? 1 : 0);
+            SetInputNeuron(i++,
+                mapController.GetNeighbour(
+                    unit.position, MapController.EDirection.left)
+                ?.IsFree() == true ? 1 : 0);
+
+            SetInputNeuron(i++, mapController.IsEndOfMap(unit.position)?1:0);
         }
         void SetInputNeuron(int neuron, float value)
         {

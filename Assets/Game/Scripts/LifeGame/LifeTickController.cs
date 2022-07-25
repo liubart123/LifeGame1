@@ -44,14 +44,42 @@ namespace Assets.Game.Scripts.LifeGame
 
         void PerformUnitsAction()
         {
-            //Debug.Log("LifeTickController: PerformUnitsBehavior");
-            foreach (var unit in lifeIterationController.currentPopulation)
-            {
-                if (unit.isLive != true)
-                    continue;
-                neuronController.ChooseAndPerformUnitAction(unit);
-            }
+
+            Parallel.ForEach(
+                SplitUnitsPopulationInChunks(
+                    lifeIterationController.currentPopulation
+                        .Where(u => u.isLive), 
+                    16), 
+                units =>
+                {
+                    foreach(var unit in units)
+                    {
+                        neuronController.ChooseAndPerformUnitAction(unit);
+                    }
+                });
+            //foreach (var unit in lifeIterationController.currentPopulation)
+            //{
+            //    if (unit.isLive != true)
+            //        continue;
+            //    neuronController.ChooseAndPerformUnitAction(unit);
+            //}
         }
 
+        List<List<Unit>> SplitUnitsPopulationInChunks(IEnumerable<Unit> units, int countOfChunks)
+        {
+            List<List<Unit>> result = new List<List<Unit>>();
+            for(int x = 0; x < countOfChunks; x++)
+            {
+                result.Add(new List<Unit>());
+            }
+
+            int i = 0;
+            foreach(var unit in units)
+            {
+                result[i % countOfChunks].Add(unit);
+                i++;
+            }
+            return result;
+        }
     }
 }

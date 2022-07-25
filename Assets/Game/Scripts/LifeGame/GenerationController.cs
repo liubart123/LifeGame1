@@ -67,10 +67,16 @@ namespace Assets.Game.Scripts.LifeGame
         }
         float AssessSuccessfulnessOfUnit(Unit unit)
         {
-            if (unit.position.x > mapController.width * 3 / 4 && unit.position.y < mapController.height / 4)
+            int sizeOfLiveZone = 10;
+            if ((unit.position.x < sizeOfLiveZone &&
+                unit.position.y < sizeOfLiveZone) ||
+                (unit.position.x >= mapController.width - sizeOfLiveZone &&
+                unit.position.y >= mapController.height - sizeOfLiveZone))
                 return 1;
-            if (unit.position.x < mapController.width / 4 && unit.position.y > mapController.height * 3 / 4)
-                return 1;
+            //if (unit.position.x > mapController.width * 3 / 4 && unit.position.y < mapController.height / 4)
+            //    return 1;
+            //if (unit.position.x < mapController.width / 4 && unit.position.y > mapController.height * 3 / 4)
+            //    return 1;
             return 0;
         }
         void MutateUnits(Unit[] baseUnits)

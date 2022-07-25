@@ -8,86 +8,68 @@ using UnityEngine.UI;
 
 public class UserInputController : MonoBehaviour
 {
+    public int mapWidth = 100, mapHeight = 100;
+    public int[] neuronsNumberInLayers = new int[] { 5, 6, 4 };
+    public int countOfTicksInIteration = 50;
+    public int countOfUnits = 200, countOfAncestors = 10;
+    public int currentIterationCount = 0;
+    public int iterationsToSkip = 0;
+
     LifeGameController lifeGameController = LifeGameController.Instance;
     MapController mapController = MapController.Instance;
     MapRenderer mapRenderer;
-    public TMP_InputField tickNoInputField;
-    public TMP_InputField iterationsNumberToSkipField;
-    public TMP_InputField iterationsNumberField;
 
-    public string CountOfUnits {
-        set
-        {
-            int.TryParse(value, out lifeGameController.countOfUnits);
-        }
-    }
-    public string PercentOfAncestors
+    void UnpdateLifeGameParameters()
     {
-        set
-        {
-            int percent;
-            if (int.TryParse(value, out percent))
-                lifeGameController.countOfAncestors = (int)(lifeGameController.countOfUnits * percent / 100f);
-        }
-    }
-    public string SizeOfMap
-    {
-        set
-        {
-            int.TryParse(value, out lifeGameController.mapWidth);
-            int.TryParse(value, out lifeGameController.mapHeight);
-        }
-    }
-    public string CountOfTicks
-    {
-        set
-        {
-            int.TryParse(value, out lifeGameController.countOfTicksInIteration);
-        }
-    }
+        lifeGameController.mapWidth = mapWidth;
+        lifeGameController.mapHeight = mapHeight;
+        lifeGameController.neuronsNumberInLayers = neuronsNumberInLayers;
+        lifeGameController.countOfTicksInIteration = countOfTicksInIteration;
+        lifeGameController.countOfUnits = countOfUnits;
+        lifeGameController.countOfAncestors = countOfAncestors;
 
+        currentIterationCount = lifeGameController.currentIterationCount;
+    }
     void UpdateView()
     {
-        UpdateIterationNo();
-        UpdateTickNo();
         mapRenderer.RenderMap(mapController);
-    }
-    void UpdateTickNo()
-    {
-        tickNoInputField.text = LifeTickController.Instance.currentTickCount.ToString();
-    }
-    void UpdateIterationNo()
-    {
-        iterationsNumberField.text = lifeGameController.currentIterationCount.ToString();
     }
     public void SetUpNewLifeGame()
     {
+        UnpdateLifeGameParameters();
         lifeGameController.SetUpNewLifeGame();
         mapRenderer.CreateMap(mapController);
         UpdateView();
     }
     public void SetUpNewLifeIteration()
     {
+        UnpdateLifeGameParameters();
         lifeGameController.SetUpNewLifeIteration();
         UpdateView();
     }
     public void RunTicksToTheEndOfIteration()
     {
+        UnpdateLifeGameParameters();
         lifeGameController.RunTicksToTheEndOfIteration();
         UpdateView();
     }
     public void RunTick()
     {
+        UnpdateLifeGameParameters();
         lifeGameController.RunTick();
+        UpdateView();
+    }
+    public IEnumerator SkipIterationsCoroutine()
+    {
+        yield return null;
+        StopPlayingTicksSequently();
+        UnpdateLifeGameParameters();
+        lifeGameController.RunMultipleIterations(iterationsToSkip);
         UpdateView();
     }
     public void SkipIterations()
     {
-        int iterations = 0;
-        if (!int.TryParse(iterationsNumberToSkipField.text, out iterations))
-            return;
-        lifeGameController.RunMultipleIterations(iterations);
-        UpdateView();
+        StartCoroutine(SkipIterationsCoroutine());
     }
 
     #region playing ticks
@@ -101,6 +83,11 @@ public class UserInputController : MonoBehaviour
         isPLaying = !isPLaying;
     }
     bool isPLaying = false;
+    void StopPlayingTicksSequently()
+    {
+        StopAllCoroutines();
+        isPLaying = false;
+    }
     IEnumerator PlayTick()
     {
         while (true)
@@ -116,7 +103,7 @@ public class UserInputController : MonoBehaviour
     void Start()
     {
         mapRenderer = FindObjectOfType<MapRenderer>();
-
+        UnpdateLifeGameParameters();
     }
 
     // Update is called once per frame

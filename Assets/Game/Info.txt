@@ -1,0 +1,14 @@
+﻿500 iterations:
+	One thread: 30.5/30.0/29.1
+	One thread + critical sections: 30.2/30.1
+	ParallelForeach: 42.4б/45.6
+	ParallelForeach for 2 loops: 28,6
+	ParallelForeach for 4 loops: 29.9
+	ParallelForeach for 8 loops: 36,4
+	ParallelForeach for 2 loops (reduce lock scope for input neurons): 26,7
+	ParallelForeach for 4 loops (reduce lock scope for input neurons): 27,3
+	ParallelForeach for 8 loops (reduce lock scope for input neurons): 31,7
+	ParallelForeach for 16 loops (remove lock scope for input neurons): 17,9
+	ParallelForeach for 8 loops (remove lock scope for input neurons): 20,3
+	ParallelForeach for 4 loops (remove lock scope for input neurons): 21,1
+	ParallelForeach for 2 loops (remove lock scope for input neurons): 27,8
