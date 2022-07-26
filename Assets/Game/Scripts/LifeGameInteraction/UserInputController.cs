@@ -11,9 +11,13 @@ public class UserInputController : MonoBehaviour
     public int mapWidth = 100, mapHeight = 100;
     public int[] neuronsNumberInLayers = new int[] { 5, 6, 4 };
     public int countOfTicksInIteration = 50;
-    public int countOfUnits = 200, countOfAncestors = 10;
+    public int countOfUnits = 200;
+    public float maxMinSuccessAncestorRatio = 10;
     public int currentIterationCount = 0;
     public int iterationsToSkip = 0;
+
+    public float chanceOfMutationForUnit = 0.1f;
+    public float chanceOfMutation = 0.1f;
 
     LifeGameController lifeGameController = LifeGameController.Instance;
     MapController mapController = MapController.Instance;
@@ -26,7 +30,9 @@ public class UserInputController : MonoBehaviour
         lifeGameController.neuronsNumberInLayers = neuronsNumberInLayers;
         lifeGameController.countOfTicksInIteration = countOfTicksInIteration;
         lifeGameController.countOfUnits = countOfUnits;
-        lifeGameController.countOfAncestors = countOfAncestors;
+        lifeGameController.maxMinSuccessAncestorRatio = maxMinSuccessAncestorRatio;
+        lifeGameController.chanceOfMutation = chanceOfMutation;
+        lifeGameController.chanceOfMutationForUnit = chanceOfMutationForUnit;
 
         currentIterationCount = lifeGameController.currentIterationCount;
     }
@@ -109,7 +115,7 @@ public class UserInputController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-            PlayTicksSequently();
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //    PlayTicksSequently();
     }
 }

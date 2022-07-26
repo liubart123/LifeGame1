@@ -14,6 +14,8 @@ namespace Assets.Game.Scripts.LifeGame.Environment
     public class EnvironmentController : Singleton<EnvironmentController>
     {
         public const int NUMBER_OF_OBSTACLES = 0;
+        PointOfEnergy[] pointsOfEnergy;
+        public float PoiEnergyCapacity = 100;
 
         MapController mapController;
         PopulationController populationController;
@@ -21,6 +23,13 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         {
             mapController = MapController.Instance;
             populationController= PopulationController.Instance;
+        }
+        public void Reset()
+        {
+            pointsOfEnergy = new PointOfEnergy[] {
+                    new PointOfEnergy(Vector2Int.zero,PoiEnergyCapacity),
+                    new PointOfEnergy(new Vector2Int(mapController.width - 1, mapController.height - 1),PoiEnergyCapacity)
+                     };
         }
 
         public void CreateAndPlaceObstaclesOnMap()
@@ -60,8 +69,25 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         }
         public void UpdateEnvironmentForTick()
         {
-            //Debug.Log("EnvironmentController: UpdateEnvironmentForTick");
+            foreach(var unit in populationController.currentPopulation)
+            {
+                int sizeOfZoneWithEnergy = 20;
+                foreach(var point in pointsOfEnergy)
+                {
+                    float energy = Mathf.Max(0, sizeOfZoneWithEnergy - GetDistancebetweenPoints(unit.position, point.position));
+                    
+                    energy = Mathf.Min(point.currentEnergy, energy);
+                    point.currentEnergy -= energy;
+
+                    unit.energy += energy;
+                }
+            }
+        }
+        float GetDistancebetweenPoints(Vector2Int pos1, Vector2Int pos2)
+        {
+            return Mathf.Abs(pos1.x - pos2.x) + Mathf.Abs(pos1.y - pos2.y);
         }
         
     }
+
 }

@@ -14,6 +14,7 @@ public class MapRenderer : MonoBehaviour
     public Tile mapCellTile, obstacleTile;
     public float gridScale;
     List<GameObject> usedCirclesInRender = new List<GameObject>();
+    public Gradient gradientForUnitBaseColor;
 
 
     void Start()
@@ -87,6 +88,9 @@ public class MapRenderer : MonoBehaviour
     Color CalculateColorForUnit(Unit unit)
     {
         float sum1 = 0, sum2 = 0, sum3 = 0;
+        int countOfSynopses = 0;
+        float totalSumOfAverages = 0;
+        float red=0, green=0, blue=0;
 
         for(int i = 0; i < unit.synopses.Length; i++)
         {
@@ -94,6 +98,9 @@ public class MapRenderer : MonoBehaviour
             {
                 for(int k = 0; k < unit.synopses[i][j].Length; k++)
                 {
+                    countOfSynopses++;
+                    totalSumOfAverages += Mathf.Abs(unit.synopses[i][j][k]);
+
                     if (k % 3 == 0)
                         sum1 += unit.synopses[i][j][k];
                     else if (k % 3 == 1)
@@ -104,11 +111,83 @@ public class MapRenderer : MonoBehaviour
             }
         }
 
-        var vectorColor = new Vector3(
-            Mathf.Abs(sum1) % 255 / 255f,
-            Mathf.Abs(sum2) % 255 / 255f,
-            Mathf.Abs(sum3) % 255 / 255f
-            ).normalized*2;
-        return new Color(vectorColor.x, vectorColor.y, vectorColor.z);
+        float absAverageValue = totalSumOfAverages / countOfSynopses;
+        float maxColorImpactOfEachSynops = 1f / countOfSynopses * 3;
+
+        int synopsCounter = 0;
+        Color resultColor = Color.black;
+        for (int i = 0; i < unit.synopses.Length; i++)
+        {
+            for (int j = 0; j < unit.synopses[i].Length; j++)
+            {
+                for (int k = 0; k < unit.synopses[i][j].Length; k++)
+                {
+                    var rnd = new System.Random(synopsCounter);
+                    var tempColor = gradientForUnitBaseColor.Evaluate((float)rnd.NextDouble());
+                    float impact = GetImpactGradeOnColorOfOneSynops(unit.synopses[i][j][k], absAverageValue) * 
+                        maxColorImpactOfEachSynops;
+                    resultColor += tempColor * impact;
+                    //Mathf.Min(
+                    //    Mathf.Abs(Mathf.Abs(unit.synopses[i][j][k]) - absAverageValue) / absAverageValue,
+                    //    1) * maxColorImpactOfEachSynops;
+
+                    //if (synopsCounter % 3 == 0)
+                    //    red += increaseValue;
+                    //else if (synopsCounter % 3 == 1)
+                    //    green += increaseValue;
+                    //else
+                    //    blue += increaseValue;
+
+                    synopsCounter++;
+                }
+            }
+        }
+
+        //var vectorColor = new Vector3(
+        //    Mathf.Abs(sum1),
+        //    Mathf.Abs(sum2),
+        //    Mathf.Abs(sum3)
+        //    ).normalized * 2;
+
+        //var vectorColor = new Vector3(
+        //    red,
+        //    green,
+        //    blue
+        //    );
+
+
+        //return new Color(vectorColor.x, vectorColor.y, vectorColor.z);
+        float max = Mathf.Max(
+            Mathf.Max(resultColor.r, resultColor.g),
+            resultColor.b);
+        resultColor /= max;
+        return resultColor;
+    }
+    float GetImpactGradeOnColorOfOneSynops(float synops, float absAverageValue)
+    {
+        float[] boundaryValues = new float[]
+        {
+            -absAverageValue*2,
+            -absAverageValue,
+            -absAverageValue/2,
+            -absAverageValue/4,
+            absAverageValue/4,
+            absAverageValue/2,
+            absAverageValue,
+            absAverageValue*2
+        };
+        int grade = int.MinValue;
+        for(int i = 0; i < boundaryValues.Length; i++)
+        {
+            if (synops <= boundaryValues[i])
+            {
+                grade = i;
+                break;
+            }
+        }
+        if (grade == int.MinValue)
+            grade = boundaryValues.Length;
+
+        return (float)grade / boundaryValues.Length;
     }
 }
