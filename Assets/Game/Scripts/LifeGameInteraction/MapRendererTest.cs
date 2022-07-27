@@ -37,7 +37,7 @@ public class MapRendererTest : MonoBehaviour
 
         for (int x = 0; x < width; x++)
         {
-            GenerationController.Instance.MutateUnit(baseUnit);
+            //GenerationController.Instance.MutateUnit(baseUnit);
             Unit tempUnit = new Unit();
             GenerationController.Instance.CopySynopsesOfAncestorToDescendant(baseUnit, tempUnit);
             for (int y = 0; y < height; y++)

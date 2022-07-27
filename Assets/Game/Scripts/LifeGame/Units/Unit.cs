@@ -20,5 +20,6 @@ namespace Assets.Game.Scripts.LifeGame.Units
         /// </summary>
         public float[][][] synopses;
 
+
     }
 }
