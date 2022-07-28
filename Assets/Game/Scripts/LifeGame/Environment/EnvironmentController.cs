@@ -16,6 +16,7 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         public const int NUMBER_OF_OBSTACLES = 0;
         PointOfEnergy[] pointsOfEnergy;
         public float PoiEnergyCapacity = 100;
+        int sizeOfZoneWithEnergy = 20;
 
         MapController mapController;
         PopulationController populationController;
@@ -64,14 +65,13 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         Vector2Int GetRadnomPosition()
         {
             return new Vector2Int(
-                UnityEngine.Random.Range(0, mapController.width),
-                UnityEngine.Random.Range(0, mapController.height));
+                UnityEngine.Random.Range(sizeOfZoneWithEnergy, mapController.width - sizeOfZoneWithEnergy),
+                UnityEngine.Random.Range(sizeOfZoneWithEnergy, mapController.height - sizeOfZoneWithEnergy));
         }
         public void UpdateEnvironmentForTick()
         {
             foreach(var unit in populationController.currentPopulation)
             {
-                int sizeOfZoneWithEnergy = 20;
                 foreach(var point in pointsOfEnergy)
                 {
                     float energy = Mathf.Max(0, sizeOfZoneWithEnergy - GetDistancebetweenPoints(unit.position, point.position));

@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MapRendererTest : MonoBehaviour
 {
-    public float chanceOfMutation = 0.01f;
+    public int numberOfNeuronsForMutation = 1;
     public MapRenderer mapRenderer;
     // Start is called before the first frame update
     void Start()
@@ -32,8 +32,8 @@ public class MapRendererTest : MonoBehaviour
 
         Unit baseUnit = new Unit();
         GenerationController.Instance.GenerateNewSynopsesForUnit(baseUnit);
-        GenerationController.Instance.chanceOfMutation = 1;
-        GenerationController.Instance.chanceOfMutationForUnit = chanceOfMutation;
+        GenerationController.Instance.chanceOfMutationForUnit = 1;
+        GenerationController.Instance.numberOfNeuronsForMutation = numberOfNeuronsForMutation;
 
         for (int x = 0; x < width; x++)
         {
@@ -42,7 +42,10 @@ public class MapRendererTest : MonoBehaviour
             GenerationController.Instance.CopySynopsesOfAncestorToDescendant(baseUnit, tempUnit);
             for (int y = 0; y < height; y++)
             {
-                GenerationController.Instance.MutateUnit(tempUnit);
+                for(int i=0;i< numberOfNeuronsForMutation; i++)
+                {
+                    GenerationController.Instance.MutateSynops(tempUnit);
+                }
                 Unit tempUnit2 = new Unit();
                 GenerationController.Instance.CopySynopsesOfAncestorToDescendant(tempUnit, tempUnit2);
                 map.GetCell(x,y).unit = tempUnit2;

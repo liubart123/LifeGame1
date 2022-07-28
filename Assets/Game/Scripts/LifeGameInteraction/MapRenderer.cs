@@ -86,27 +86,28 @@ public class MapRenderer : MonoBehaviour
         }
     }
     public int maxRndValue;
+    public int rndDelimeter;
     Color CalculateColorForUnit(Unit unit)
     {
         int countOfSynopses = 0;
         float resultedGradientX = 0;
 
 
-        var rnd = new System.Random(0);
         for (int i = 0; i < unit.synopses.Length; i++)
         {
-            for(int j = 0; j < unit.synopses[i].Length; j++)
+            foreach(var synops in unit.synopses[i])
             {
-                for(int k = 0; k < unit.synopses[i][j].Length; k++)
-                {
-                    countOfSynopses++;
-                    resultedGradientX += unit.synopses[i][j][k] * rnd.Next(0, maxRndValue);
-                }
+                var rnd = new System.Random(
+                    synops.sourceLayer +
+                    synops.sourceNeuron +
+                    synops.targetLayer +
+                    synops.targetNeuron);
+                resultedGradientX += rnd.Next(0, maxRndValue) * synops.value;
             }
         }
-        resultedGradientX = resultedGradientX % 100;
-        resultedGradientX += 100;
-        resultedGradientX /= 200f;
+        resultedGradientX = resultedGradientX % rndDelimeter;
+        resultedGradientX += rndDelimeter;
+        resultedGradientX /= rndDelimeter * 2;
 
 
         return gradientForUnitBaseColor.Evaluate(resultedGradientX);

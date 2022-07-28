@@ -34,29 +34,42 @@ namespace Assets.Game.Scripts.LifeGame.Units.Brain
                 neurons[layer] = new float[neuronsNumberInLayers[layer]];
             }
         }
+        void ResetNeurons()
+        {
+            for (int layer = 0; layer < neuronsNumberInLayers.Length; layer++)
+            {
+                for(int i=0;i< neuronsNumberInLayers[layer]; i++)
+                {
+                    neurons[layer][i] = 0;
+                }
+            }
+        }
 
         public void ChooseAndPerformUnitAction(Unit unit)
         {
+            Profiler.BeginSample("ResetNeurons");
+            ResetNeurons();
+            Profiler.EndSample();
+
             Profiler.BeginSample("SetInputNeurons");
             SetInputNeurons(unit);
             Profiler.EndSample();
 
             Profiler.BeginSample("ChooseAndPerformUnitAction");
-            for (int layer = 1; layer < neuronsNumberInLayers.Length; layer++)
+            for (int layer = 0; layer < neuronsNumberInLayers.Length-1; layer++)
             {
-                for (int neuron = 0; neuron < neuronsNumberInLayers[layer]; neuron++)
+                if (layer != 0)
                 {
-                    float newNeuronValue = 0;
-
-                    for (int prevLayerNeuron = 0; prevLayerNeuron < neuronsNumberInLayers[layer - 1]; prevLayerNeuron++)
+                    for(int i = 0; i < neuronsNumberInLayers[layer]; i++)
                     {
-                        newNeuronValue += 
-                            neurons[layer - 1][prevLayerNeuron] * 
-                            unit.synopses[layer - 1][prevLayerNeuron][neuron];
-
+                        neurons[layer][i] = Sigma(neurons[layer][i]);
                     }
+                }
 
-                    neurons[layer][neuron] = Sigma(newNeuronValue);
+                foreach(var synops in unit.synopses[layer])
+                {
+                    neurons[synops.targetLayer][synops.targetNeuron] +=
+                        neurons[layer][synops.sourceNeuron] * synops.value;
                 }
             }
             Profiler.EndSample();

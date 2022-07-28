@@ -1125,7 +1125,8 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 8
     m_NumAlphaKeys: 2
-  maxRndValue: 2
+  maxRndValue: 10
+  rndDelimeter: 500
 --- !u!1 &167894425
 GameObject:
   m_ObjectHideFlags: 0
@@ -1256,7 +1257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapWidth: 100
   mapHeight: 100
-  neuronsNumberInLayers: 0a00000004000000
+  neuronsNumberInLayers: 0a0000000500000004000000
   countOfTicksInIteration: 100
   countOfUnits: 200
   maxMinSuccessAncestorRatio: 10
@@ -1264,6 +1265,9 @@ MonoBehaviour:
   iterationsToSkip: 500
   chanceOfMutationForUnit: 0.1
   chanceOfMutation: 0.5
+  chanceOfRemovingSynops: 0.1
+  startNumberOfNeuorns: 10
+  numberOfNeuronsForMutation: 3
   secondsPefFrame: 0.001
 --- !u!4 &185811588
 Transform:
@@ -6592,7 +6596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 847b9baf8cea85e47b2075d1aa996dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chanceOfMutation: 0.001
+  numberOfNeuronsForMutation: 1
   mapRenderer: {fileID: 147046395}
 --- !u!4 &1677985131
 Transform:

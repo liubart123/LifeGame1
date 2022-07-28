@@ -23,8 +23,13 @@ public class LifeGameController : Singleton<LifeGameController>
     public float maxMinSuccessAncestorRatio = 10;
     public int currentIterationCount = 0;
 
+    public float chanceOfRemovingSynops;
+
     public float chanceOfMutationForUnit = 0.1f;
     public float chanceOfMutation = 0.1f;
+
+    public int startNumberOfNeuorns;
+    public int numberOfNeuronsForMutation;
 
     public void SetUpNewLifeGame()
     {
@@ -34,7 +39,10 @@ public class LifeGameController : Singleton<LifeGameController>
             countOfUnits,
             maxMinSuccessAncestorRatio,
             chanceOfMutation,
-            chanceOfMutationForUnit);
+            chanceOfMutationForUnit,
+            chanceOfRemovingSynops,
+            startNumberOfNeuorns,
+            numberOfNeuronsForMutation);
         EnvironmentController.Instance.Initialize();
         LifeTickController.Instance.Initialize();
         LifeGameEngine.Instance.Initialize();

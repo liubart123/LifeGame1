@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Game.Scripts.LifeGame.Units.Brain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,12 +15,17 @@ namespace Assets.Game.Scripts.LifeGame.Units
         /// <summary>
         /// energy is collected on special places in map. At the end of iteration units with highest energy win
         /// </summary>
-        public float energy = 1;    
+        public float energy = 1;
+
         /// <summary>
-        /// [layer of source neuron] [source neuron numbber] [target neuron number]
+        /// Indes of array means index of source layer for synopses in the List
         /// </summary>
-        public float[][][] synopses;
+        public List<Synops>[] synopses;
 
+        public override string ToString()
+        {
 
+            return $"{position}. Energy: {energy}";
+        }
     }
 }

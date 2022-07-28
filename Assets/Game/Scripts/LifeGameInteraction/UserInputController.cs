@@ -16,8 +16,13 @@ public class UserInputController : MonoBehaviour
     public int currentIterationCount = 0;
     public int iterationsToSkip = 0;
 
+
     public float chanceOfMutationForUnit = 0.1f;
     public float chanceOfMutation = 0.1f;
+    public float chanceOfRemovingSynops = 0.1f;
+
+    public int startNumberOfNeuorns;
+    public int numberOfNeuronsForMutation;
 
     LifeGameController lifeGameController = LifeGameController.Instance;
     MapController mapController = MapController.Instance;
@@ -33,6 +38,11 @@ public class UserInputController : MonoBehaviour
         lifeGameController.maxMinSuccessAncestorRatio = maxMinSuccessAncestorRatio;
         lifeGameController.chanceOfMutation = chanceOfMutation;
         lifeGameController.chanceOfMutationForUnit = chanceOfMutationForUnit;
+        lifeGameController.chanceOfRemovingSynops = chanceOfRemovingSynops;
+
+        lifeGameController.startNumberOfNeuorns = startNumberOfNeuorns;
+        lifeGameController.numberOfNeuronsForMutation = numberOfNeuronsForMutation;
+
 
         currentIterationCount = lifeGameController.currentIterationCount;
     }

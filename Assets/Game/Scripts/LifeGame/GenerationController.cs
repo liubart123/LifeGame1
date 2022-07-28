@@ -1,5 +1,6 @@
 ﻿using Assets.Game.Scripts.LifeGame.Map;
 using Assets.Game.Scripts.LifeGame.Units;
+using Assets.Game.Scripts.LifeGame.Units.Brain;
 using Assets.Game.Scripts.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,15 +19,23 @@ namespace Assets.Game.Scripts.LifeGame
         public float synopsMagnitudeMutationRandomAmplitude = 0.1f;
         public float chanceOfMutationForUnit = 0.1f;
         public float chanceOfMutation = 0.1f;
+        public float chanceOfRemovingSynops = 0.1f;
         public int countOfUnits = 1;
         public float maxMinSuccessAncestorRatio = 1;
+
+        public int startNumberOfNeuorns;
+        public int numberOfNeuronsForMutation;
+
 
         public void Initialize(
             int[] neuronsNumberInLayers, 
             int countOfUnits = 10, 
             float maxMinSuccessAncestorRatio = 10,
             float chanceOfMutation = 0.1f,
-            float chanceOfMutationForUnit = 0.1f)
+            float chanceOfMutationForUnit = 0.1f,
+            float chanceOfRemovingSynops = 0.1f,
+            int startNumberOfNeuorns = 10,
+            int numberOfNeuronsForMutation = 5)
         {
             mapController = MapController.Instance;
             populationController = PopulationController.Instance;
@@ -35,6 +44,9 @@ namespace Assets.Game.Scripts.LifeGame
             this.maxMinSuccessAncestorRatio = maxMinSuccessAncestorRatio;
             this.chanceOfMutationForUnit = chanceOfMutationForUnit;
             this.chanceOfMutation = chanceOfMutation;
+            this.chanceOfRemovingSynops = chanceOfRemovingSynops;
+            this.startNumberOfNeuorns = startNumberOfNeuorns;
+            this.numberOfNeuronsForMutation = numberOfNeuronsForMutation;
         }
 
         public Unit[] CreateNewRandomPopulation()
@@ -68,7 +80,7 @@ namespace Assets.Game.Scripts.LifeGame
             var ancestors = units.TakeWhile(
                 (u,i) => 
                 maxSuccess / u.Key < maxMinSuccessAncestorRatio && 
-                i < baseUnits.Count()/10);
+                i <= baseUnits.Count()/10);
 
             float minUsefullnessOfAncestor = ancestors.Min(u=>u.Key);
             List<Unit> ancestorsListWithProportions = new List<Unit>();
@@ -113,55 +125,78 @@ namespace Assets.Game.Scripts.LifeGame
         }
         public void MutateUnit(Unit unit)
         {
-            for (int layer = 0; layer < neuronsNumberInLayers.Length - 1; layer++)
+            if (Random.Range(0, 1f) < chanceOfMutationForUnit)
             {
-                for (int sourceNeuron = 0; sourceNeuron < neuronsNumberInLayers[layer]; sourceNeuron++)
+                int localNumberOfNeuronsForMutation = 1 + (int)((numberOfNeuronsForMutation-1) * Random.Range(0, 1f));
+                for (int i = 0; i < localNumberOfNeuronsForMutation; i++)
                 {
-                    if (Random.Range(0,1f) < chanceOfMutationForUnit)
-                    {
-                        for (int targetNeuron = 0; targetNeuron < neuronsNumberInLayers[layer + 1]; targetNeuron++)
-                        {
-                            if (Random.Range(0, 1f) < chanceOfMutation)
-                            {
-                                unit.synopses[layer][sourceNeuron][targetNeuron] =
-                                    Random.Range(-synopsMagnitudeRandomAmplitude, synopsMagnitudeRandomAmplitude);
-                            }
-                        }
-                    }
+                    MutateSynops(unit);
                 }
             }
         }
         public void GenerateNewSynopsesForUnit(Unit unit)
         {
-            unit.synopses = new float[neuronsNumberInLayers.Length-1][][];
+            unit.synopses = new List<Synops>[neuronsNumberInLayers.Length - 1];
             for(int layer =0;layer< neuronsNumberInLayers.Length-1; layer++)
             {
-                unit.synopses[layer] = new float[neuronsNumberInLayers[layer]][];
-                for(int sourceNeuron=0; sourceNeuron < neuronsNumberInLayers[layer]; sourceNeuron++)
-                {
-                    unit.synopses[layer][sourceNeuron] = new float[neuronsNumberInLayers[layer+1]];
-                    for(int targetNeuron=0; targetNeuron < neuronsNumberInLayers[layer+1]; targetNeuron++)
-                    {
-                        unit.synopses[layer][sourceNeuron][targetNeuron] = 
-                            Random.Range(-synopsMagnitudeRandomAmplitude, synopsMagnitudeRandomAmplitude);
-                    }
-                }
+                unit.synopses[layer] = new List<Synops>();
+            }
+            for (int i = 0; i < startNumberOfNeuorns; i++)
+            {
+                MutateSynops(unit);
             }
         }
+        public void MutateSynops(Unit unit)
+        {
+            if (chanceOfRemovingSynops > Random.Range(0, 1f))
+            {
+                int removeLayer = Random.Range(0, neuronsNumberInLayers.Length - 1);
+                int removeIndex = Random.Range(0, unit.synopses[removeLayer].Count);
+                if (removeIndex >= unit.synopses[removeLayer].Count)
+                    return;
+                unit.synopses[removeLayer].RemoveAt(removeIndex);
+                return;
+            }
+
+
+            int sourceLayer = Random.Range(0, neuronsNumberInLayers.Length - 1);
+            int sourceIndex = Random.Range(0, neuronsNumberInLayers[sourceLayer]);
+
+            int targetLayer = Random.Range(sourceLayer + 1, neuronsNumberInLayers.Length);
+            int targetIndex = Random.Range(0, neuronsNumberInLayers[targetLayer]);
+
+            var newSynops = new Synops(
+                (byte)sourceLayer,
+                (byte)sourceIndex,
+                (byte)targetLayer,
+                (byte)targetIndex);
+
+            newSynops.value = FullyMutateSynopsValue();
+
+            var existingSynops = unit.synopses[sourceLayer].Find(s => s.IsSameConnection(newSynops));
+            if (existingSynops != null)
+            {
+                existingSynops.value = newSynops.value;
+            } else
+            {
+                unit.synopses[sourceLayer].Add(newSynops);
+            }
+        }
+
+        float FullyMutateSynopsValue()
+        {
+            return Random.Range(-synopsMagnitudeRandomAmplitude, synopsMagnitudeRandomAmplitude);
+        }
+
         public void CopySynopsesOfAncestorToDescendant(Unit ancestor, Unit descendant)
         {
-            descendant.synopses = new float[neuronsNumberInLayers.Length - 1][][];
+            descendant.synopses = new List<Synops>[neuronsNumberInLayers.Length - 1];
             for (int layer = 0; layer < neuronsNumberInLayers.Length - 1; layer++)
             {
-                descendant.synopses[layer] = new float[neuronsNumberInLayers[layer]][];
-                for (int sourceNeuron = 0; sourceNeuron < neuronsNumberInLayers[layer]; sourceNeuron++)
+                descendant.synopses[layer] = new List<Synops>();
+                foreach(var synops in ancestor.synopses[layer])
                 {
-                    descendant.synopses[layer][sourceNeuron] = new float[neuronsNumberInLayers[layer + 1]];
-                    for (int targetNeuron = 0; targetNeuron < neuronsNumberInLayers[layer + 1]; targetNeuron++)
-                    {
-                        descendant.synopses[layer][sourceNeuron][targetNeuron] =
-                            ancestor.synopses[layer][sourceNeuron][targetNeuron];
-                    }
+                    descendant.synopses[layer].Add(synops.Copy());
                 }
             }
         }
