@@ -14,27 +14,25 @@ namespace Assets.Game.Scripts.LifeGame
         MapController mapController;
         PopulationController populationController;
         public int[] neuronsNumberInLayers;
-        public float synopsMagnitudeRandomAmplitude = 10f;
-        public float synopsMagnitudeMutationRandomAmplitude = 0.1f;
-        public float chanceOfMutationForUnit = 0.1f;
-        public float chanceOfMutation = 0.1f;
+        public float startSynopsValueRandomRange = 10f;
+        /// <summary>
+        /// % of synops' change in mutation
+        /// </summary>
+        public float synopsValueMutationRange = 0.1f;
+        public float chanceOfUnitSoftMutation = 0.1f;
+        public float chanceOfUnitHardMutation = 0.1f;
+        public float chanceOfSynopsSoftMutation = 0.1f;
+        public float chanceOfSynopsHardMutation;
         public int countOfUnits = 1;
-        public float maxMinSuccessAncestorRatio = 1;
+        /// <summary>
+        /// Maximum ratio of success of best and worst ancestor. Used to choose ancestors for next generation
+        /// </summary>
+        public float maxMinSuccessAncestorRatio = 1;    
 
-        public void Initialize(
-            int[] neuronsNumberInLayers, 
-            int countOfUnits = 10, 
-            float maxMinSuccessAncestorRatio = 10,
-            float chanceOfMutation = 0.1f,
-            float chanceOfMutationForUnit = 0.1f)
+        public void Initialize()
         {
             mapController = MapController.Instance;
             populationController = PopulationController.Instance;
-            this.neuronsNumberInLayers = neuronsNumberInLayers;
-            this.countOfUnits = countOfUnits;
-            this.maxMinSuccessAncestorRatio = maxMinSuccessAncestorRatio;
-            this.chanceOfMutationForUnit = chanceOfMutationForUnit;
-            this.chanceOfMutation = chanceOfMutation;
         }
 
         public Unit[] CreateNewRandomPopulation()
@@ -68,7 +66,7 @@ namespace Assets.Game.Scripts.LifeGame
             var ancestors = units.TakeWhile(
                 (u,i) => 
                 maxSuccess / u.Key < maxMinSuccessAncestorRatio && 
-                i < baseUnits.Count()/10);
+                i <= baseUnits.Count()/10);
 
             float minUsefullnessOfAncestor = ancestors.Min(u=>u.Key);
             List<Unit> ancestorsListWithProportions = new List<Unit>();
@@ -92,46 +90,40 @@ namespace Assets.Game.Scripts.LifeGame
         float AssessSuccessfulnessOfUnit(Unit unit)
         {
             return unit.energy;
-            //int sizeOfLiveZone = 2;
-            //if ((unit.position.x < sizeOfLiveZone &&
-            //    unit.position.y < sizeOfLiveZone) ||
-            //    (unit.position.x >= mapController.width - sizeOfLiveZone &&
-            //    unit.position.y >= mapController.height - sizeOfLiveZone))
-            //    return 1;
-            //if (unit.position.x > mapController.width * 3 / 4 && unit.position.y < mapController.height / 4)
-            //    return 1;
-            //if (unit.position.x < mapController.width / 4 && unit.position.y > mapController.height * 3 / 4)
-            //    return 1;
-            //return 0;
         }
         void MutateUnits(Unit[] baseUnits)
         {
             foreach (Unit unit in baseUnits)
             {
-                MutateUnit(unit);
+                if (Random.Range(0, 1f) < chanceOfUnitSoftMutation)
+                    MutateUnit(unit, false);
+                if (Random.Range(0, 1f) < chanceOfUnitHardMutation)
+                    MutateUnit(unit, true);
             }
         }
-        public void MutateUnit(Unit unit)
+        public void MutateUnit(Unit unit, bool isHardMutation = false)
         {
             for (int layer = 0; layer < neuronsNumberInLayers.Length - 1; layer++)
             {
                 for (int sourceNeuron = 0; sourceNeuron < neuronsNumberInLayers[layer]; sourceNeuron++)
                 {
-                    if (Random.Range(0,1f) < chanceOfMutationForUnit)
+                    for (int targetNeuron = 0; targetNeuron < neuronsNumberInLayers[layer + 1]; targetNeuron++)
                     {
-                        for (int targetNeuron = 0; targetNeuron < neuronsNumberInLayers[layer + 1]; targetNeuron++)
+                        if (isHardMutation == false && Random.Range(0, 1f) < chanceOfSynopsSoftMutation)
                         {
-                            if (Random.Range(0, 1f) < chanceOfMutation)
-                            {
-                                unit.synopses[layer][sourceNeuron][targetNeuron] =
-                                    Random.Range(-synopsMagnitudeRandomAmplitude, synopsMagnitudeRandomAmplitude);
-                            }
+                            unit.synopses[layer][sourceNeuron][targetNeuron] *=
+                                1 + Random.Range(-synopsValueMutationRange, synopsValueMutationRange);
+                        }
+                        if (isHardMutation == true && Random.Range(0, 1f) < chanceOfSynopsHardMutation)
+                        {
+                            unit.synopses[layer][sourceNeuron][targetNeuron] =
+                                Random.Range(-startSynopsValueRandomRange, startSynopsValueRandomRange);
                         }
                     }
                 }
             }
         }
-        public void GenerateNewSynopsesForUnit(Unit unit)
+        public void GenerateNewSynopsesForUnit(Unit unit, bool isHardMutation = false)
         {
             unit.synopses = new float[neuronsNumberInLayers.Length-1][][];
             for(int layer =0;layer< neuronsNumberInLayers.Length-1; layer++)
@@ -143,7 +135,7 @@ namespace Assets.Game.Scripts.LifeGame
                     for(int targetNeuron=0; targetNeuron < neuronsNumberInLayers[layer+1]; targetNeuron++)
                     {
                         unit.synopses[layer][sourceNeuron][targetNeuron] = 
-                            Random.Range(-synopsMagnitudeRandomAmplitude, synopsMagnitudeRandomAmplitude);
+                            Random.Range(-startSynopsValueRandomRange, startSynopsValueRandomRange);
                     }
                 }
             }

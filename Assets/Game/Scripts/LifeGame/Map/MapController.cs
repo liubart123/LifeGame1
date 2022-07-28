@@ -10,7 +10,7 @@ namespace Assets.Game.Scripts.LifeGame.Map
 {
     public class MapController : Singleton<MapController>
     {
-        public MapCell[,] cells;
+        MapCell[,] cells;
         public int width, height;
 
 
@@ -26,10 +26,8 @@ namespace Assets.Game.Scripts.LifeGame.Map
                 cell.Reset();
             }
         }
-        public void CreateMep(int width, int height)
+        public void CreateMap()
         {
-            this.width = width;
-            this.height = height;
             cells = new MapCell[width,height];
             for (int x = 0; x < width; x++)
             {

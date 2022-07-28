@@ -27,7 +27,7 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         public void Reset()
         {
             pointsOfEnergy = new PointOfEnergy[] {
-                    new PointOfEnergy(Vector2Int.zero,PoiEnergyCapacity),
+                    //new PointOfEnergy(Vector2Int.zero,PoiEnergyCapacity),
                     new PointOfEnergy(new Vector2Int(mapController.width - 1, mapController.height - 1),PoiEnergyCapacity)
                      };
         }

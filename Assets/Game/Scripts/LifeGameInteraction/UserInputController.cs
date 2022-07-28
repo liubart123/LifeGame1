@@ -1,5 +1,6 @@
 using Assets.Game.Scripts.LifeGame;
 using Assets.Game.Scripts.LifeGame.Map;
+using Assets.Game.Scripts.LifeGame.Units.Brain;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -8,33 +9,67 @@ using UnityEngine.UI;
 
 public class UserInputController : MonoBehaviour
 {
+    [Header("Map")]
     public int mapWidth = 100, mapHeight = 100;
+    [Header("Neurons")]
     public int[] neuronsNumberInLayers = new int[] { 5, 6, 4 };
-    public int countOfTicksInIteration = 50;
-    public int countOfUnits = 200;
+    [Header("Generations")]
+    public float startSynopsValueRandomRange = 10f;
+    public float synopsValueMutationRange = 0.1f;
+    public float chanceOfUnitSoftMutation = 0.1f;
+    public float chanceOfUnitHardMutation = 0.1f;
+    public float chanceOfSynopsSoftMutation = 0.1f;
+    public float chanceOfSynopsHardMutation;
+    public int countOfUnits = 1;
     public float maxMinSuccessAncestorRatio = 10;
-    public int currentIterationCount = 0;
-    public int iterationsToSkip = 0;
 
-    public float chanceOfMutationForUnit = 0.1f;
-    public float chanceOfMutation = 0.1f;
+
+
+    [Header("General")]
+    public int countOfTicksInIteration = 50;
+    public int iterationsToSkip = 0;
+    public int currentIterationCount = 0;
 
     LifeGameController lifeGameController = LifeGameController.Instance;
     MapController mapController = MapController.Instance;
     MapRenderer mapRenderer;
 
-    void UnpdateLifeGameParameters()
+    void SynchronyseStateWithControllers()
     {
-        lifeGameController.mapWidth = mapWidth;
-        lifeGameController.mapHeight = mapHeight;
-        lifeGameController.neuronsNumberInLayers = neuronsNumberInLayers;
-        lifeGameController.countOfTicksInIteration = countOfTicksInIteration;
-        lifeGameController.countOfUnits = countOfUnits;
-        lifeGameController.maxMinSuccessAncestorRatio = maxMinSuccessAncestorRatio;
-        lifeGameController.chanceOfMutation = chanceOfMutation;
-        lifeGameController.chanceOfMutationForUnit = chanceOfMutationForUnit;
-
         currentIterationCount = lifeGameController.currentIterationCount;
+
+        //map
+        if (mapController.width != mapWidth || mapController.height != mapHeight)
+        {
+            mapController.CreateMap();
+            mapController.width = mapWidth;
+            mapController.height = mapHeight;
+        }
+
+        //neurons
+        if (NeuronController.Instance.neuronsNumberInLayers != neuronsNumberInLayers)
+        {
+            NeuronController.Instance.neuronsNumberInLayers = neuronsNumberInLayers;
+            NeuronController.Instance.Initialize();
+        }
+        if (GenerationController.Instance.neuronsNumberInLayers != neuronsNumberInLayers)
+        {
+            GenerationController.Instance.neuronsNumberInLayers = neuronsNumberInLayers;
+            GenerationController.Instance.Initialize();
+        }
+
+        //Generations
+        GenerationController.Instance.startSynopsValueRandomRange = startSynopsValueRandomRange;
+        GenerationController.Instance.synopsValueMutationRange = synopsValueMutationRange;
+        GenerationController.Instance.chanceOfUnitSoftMutation = chanceOfUnitSoftMutation;
+        GenerationController.Instance.chanceOfUnitHardMutation = chanceOfUnitHardMutation;
+        GenerationController.Instance.chanceOfSynopsSoftMutation = chanceOfSynopsSoftMutation;
+        GenerationController.Instance.chanceOfSynopsHardMutation = chanceOfSynopsHardMutation;
+        GenerationController.Instance.countOfUnits = countOfUnits;
+        GenerationController.Instance.maxMinSuccessAncestorRatio = maxMinSuccessAncestorRatio;
+
+        //lifeGameController
+        lifeGameController.countOfTicksInIteration = countOfTicksInIteration;
     }
     void UpdateView()
     {
@@ -42,26 +77,26 @@ public class UserInputController : MonoBehaviour
     }
     public void SetUpNewLifeGame()
     {
-        UnpdateLifeGameParameters();
+        SynchronyseStateWithControllers();
         lifeGameController.SetUpNewLifeGame();
         mapRenderer.CreateMap(mapController);
         UpdateView();
     }
     public void SetUpNewLifeIteration()
     {
-        UnpdateLifeGameParameters();
+        SynchronyseStateWithControllers();
         lifeGameController.SetUpNewLifeIteration();
         UpdateView();
     }
     public void RunTicksToTheEndOfIteration()
     {
-        UnpdateLifeGameParameters();
+        SynchronyseStateWithControllers();
         lifeGameController.RunTicksToTheEndOfIteration();
         UpdateView();
     }
     public void RunTick()
     {
-        UnpdateLifeGameParameters();
+        SynchronyseStateWithControllers();
         lifeGameController.RunTick();
         UpdateView();
     }
@@ -69,12 +104,13 @@ public class UserInputController : MonoBehaviour
     {
         yield return null;
         StopPlayingTicksSequently();
-        UnpdateLifeGameParameters();
+        SynchronyseStateWithControllers();
         lifeGameController.RunMultipleIterations(iterationsToSkip);
         UpdateView();
     }
     public void SkipIterations()
     {
+        SynchronyseStateWithControllers();
         StartCoroutine(SkipIterationsCoroutine());
     }
 
@@ -82,6 +118,7 @@ public class UserInputController : MonoBehaviour
     public float secondsPefFrame = 0.5f;
     public void PlayTicksSequently()
     {
+        SynchronyseStateWithControllers();
         if (isPLaying)
             StopAllCoroutines();
         else
@@ -109,7 +146,7 @@ public class UserInputController : MonoBehaviour
     void Start()
     {
         mapRenderer = FindObjectOfType<MapRenderer>();
-        UnpdateLifeGameParameters();
+        SynchronyseStateWithControllers();
     }
 
     // Update is called once per frame

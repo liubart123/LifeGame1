@@ -7,8 +7,11 @@ using UnityEngine;
 
 public class MapRendererTest : MonoBehaviour
 {
-    public float chanceOfMutation = 0.01f;
+    public float synopsValueMutationRange = 0.1f;
+    public float chanceOfSynopsSoftMutation = 0.1f;
+    public float chanceOfSynopsHardMutation;
     public MapRenderer mapRenderer;
+    MapController map = new MapController();
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +22,9 @@ public class MapRendererTest : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             StartCoroutine(RenderMap());
+        } else if (Input.GetKeyDown(KeyCode.R))
+        {
+            mapRenderer.RenderMap(map);
         }
     }
 
@@ -27,13 +33,16 @@ public class MapRendererTest : MonoBehaviour
         yield return null;
         int width = 100;
         int height = 100;
-        MapController map = new MapController();
-        map.CreateMep(width, height);
+        map.width = width;
+        map.height = height;
+        map.CreateMap();
 
         Unit baseUnit = new Unit();
         GenerationController.Instance.GenerateNewSynopsesForUnit(baseUnit);
-        GenerationController.Instance.chanceOfMutation = 1;
-        GenerationController.Instance.chanceOfMutationForUnit = chanceOfMutation;
+        GenerationController.Instance.chanceOfUnitHardMutation = 1;
+        GenerationController.Instance.synopsValueMutationRange = synopsValueMutationRange;
+        GenerationController.Instance.chanceOfSynopsSoftMutation = chanceOfSynopsSoftMutation;
+        GenerationController.Instance.chanceOfSynopsHardMutation = chanceOfSynopsHardMutation;
 
         for (int x = 0; x < width; x++)
         {

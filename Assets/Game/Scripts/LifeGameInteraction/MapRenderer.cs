@@ -15,6 +15,8 @@ public class MapRenderer : MonoBehaviour
     public float gridScale;
     List<GameObject> usedCirclesInRender = new List<GameObject>();
     public Gradient gradientForUnitBaseColor;
+    public float maxValueOfSynops = 10;
+    public float realMaxValueOfSynops;
 
 
     void Start()
@@ -85,7 +87,6 @@ public class MapRenderer : MonoBehaviour
             usedCirclesInRender[i].SetActive(false);
         }
     }
-    public int maxRndValue;
     Color CalculateColorForUnit(Unit unit)
     {
         int countOfSynopses = 0;
@@ -100,14 +101,15 @@ public class MapRenderer : MonoBehaviour
                 for(int k = 0; k < unit.synopses[i][j].Length; k++)
                 {
                     countOfSynopses++;
-                    resultedGradientX += unit.synopses[i][j][k] * rnd.Next(0, maxRndValue);
+                    resultedGradientX += Mathf.Clamp(unit.synopses[i][j][k], -maxValueOfSynops, maxValueOfSynops);
                 }
             }
         }
-        resultedGradientX = resultedGradientX % 100;
-        resultedGradientX += 100;
-        resultedGradientX /= 200f;
 
+        resultedGradientX /= countOfSynopses * realMaxValueOfSynops;
+        resultedGradientX++;
+        resultedGradientX /= 2;
+        resultedGradientX = Mathf.Clamp(resultedGradientX, 0, 1);
 
         return gradientForUnitBaseColor.Evaluate(resultedGradientX);
     }

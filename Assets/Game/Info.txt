@@ -12,3 +12,13 @@
 	ParallelForeach for 8 loops (remove lock scope for input neurons): 20,3
 	ParallelForeach for 4 loops (remove lock scope for input neurons): 21,1
 	ParallelForeach for 2 loops (remove lock scope for input neurons): 27,8
+
+
+
+todo:
+	controllers:
+		initialzie
+		reset
+		newGame
+		newIteration
+		newTick

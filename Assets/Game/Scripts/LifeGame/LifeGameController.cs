@@ -16,31 +16,19 @@ using UnityEngine.Profiling;
 /// </summary>
 public class LifeGameController : Singleton<LifeGameController>
 {
-    public int mapWidth = 100, mapHeight = 100;
-    public int[] neuronsNumberInLayers = new int[] {5,6,4};
     public int countOfTicksInIteration = 50;
-    public int countOfUnits = 200;
-    public float maxMinSuccessAncestorRatio = 10;
     public int currentIterationCount = 0;
-
-    public float chanceOfMutationForUnit = 0.1f;
-    public float chanceOfMutation = 0.1f;
 
     public void SetUpNewLifeGame()
     {
-        NeuronController.Instance.Initialize(neuronsNumberInLayers);
-        GenerationController.Instance.Initialize(
-            neuronsNumberInLayers, 
-            countOfUnits,
-            maxMinSuccessAncestorRatio,
-            chanceOfMutation,
-            chanceOfMutationForUnit);
+        NeuronController.Instance.Initialize();
+        GenerationController.Instance.Initialize();
         EnvironmentController.Instance.Initialize();
         LifeTickController.Instance.Initialize();
         LifeGameEngine.Instance.Initialize();
         NeuronActionController.Instance.Initialize();
 
-        MapController.Instance.CreateMep(mapWidth, mapHeight);
+        MapController.Instance.CreateMap();
         PopulationController.Instance.SetUpRandomPopulation();
         EnvironmentController.Instance.CreateAndPlaceObstaclesOnMap();
         EnvironmentController.Instance.PlaceUnitsOnMap();

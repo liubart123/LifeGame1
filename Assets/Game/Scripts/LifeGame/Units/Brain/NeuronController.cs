@@ -12,17 +12,16 @@ namespace Assets.Game.Scripts.LifeGame.Units.Brain
 {
     public class NeuronController : Singleton<NeuronController>
     {
-        public float[][] neurons;
+        float[][] neurons;
         public int[] neuronsNumberInLayers;
         NeuronActionController neuronActionController;
         MapController mapController;
 
-        public void Initialize(int[] neuronsNumberInLayers)
+        public void Initialize()
         {
             neuronActionController = NeuronActionController.Instance;
             mapController = MapController.Instance;
 
-            this.neuronsNumberInLayers = neuronsNumberInLayers;
             InitializeNeurons();
         }
 

@@ -49,7 +49,7 @@ namespace Assets.Game.Scripts.LifeGame
                 SplitUnitsPopulationInChunks(
                     lifeIterationController.currentPopulation
                         .Where(u => u.isLive), 
-                    16), 
+                    1), 
                 units =>
                 {
                     foreach(var unit in units)
