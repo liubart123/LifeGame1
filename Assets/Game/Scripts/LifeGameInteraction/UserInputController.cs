@@ -1,4 +1,5 @@
 using Assets.Game.Scripts.LifeGame;
+using Assets.Game.Scripts.LifeGame.Environment;
 using Assets.Game.Scripts.LifeGame.Map;
 using Assets.Game.Scripts.LifeGame.Units.Brain;
 using System.Collections;
@@ -10,7 +11,8 @@ using UnityEngine.UI;
 public class UserInputController : MonoBehaviour
 {
     [Header("Map")]
-    public int mapWidth = 100, mapHeight = 100;
+    public int mapWidth = 100;
+    public int mapHeight = 100;
     [Header("Neurons")]
     public int[] neuronsNumberInLayers = new int[] { 5, 6, 4 };
     [Header("Generations")]
@@ -22,6 +24,11 @@ public class UserInputController : MonoBehaviour
     public float chanceOfSynopsHardMutation;
     public int countOfUnits = 1;
     public float maxMinSuccessAncestorRatio = 10;
+    [Header("Environment")]
+    public int unitPlacementOffset = 20;
+    public PointOfEnergy[] pointsOfEnergy;
+    public int sizeOfZoneWithEnergy = 20;
+    public Vector2Int[] pointsOfObstaclesLine;
 
 
 
@@ -45,6 +52,12 @@ public class UserInputController : MonoBehaviour
             mapController.width = mapWidth;
             mapController.height = mapHeight;
         }
+
+        //env
+        EnvironmentController.Instance.unitPlacementOffset = unitPlacementOffset;
+        EnvironmentController.Instance.pointsOfEnergy = pointsOfEnergy;
+        EnvironmentController.Instance.sizeOfZoneWithEnergy = sizeOfZoneWithEnergy;
+        EnvironmentController.Instance.pointsOfObstaclesLine = pointsOfObstaclesLine;
 
         //neurons
         if (NeuronController.Instance.neuronsNumberInLayers != neuronsNumberInLayers)

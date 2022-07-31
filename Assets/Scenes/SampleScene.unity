@@ -1266,10 +1266,24 @@ MonoBehaviour:
   chanceOfSynopsHardMutation: 0.1
   countOfUnits: 200
   maxMinSuccessAncestorRatio: 10
+  unitPlacementOffset: 20
+  pointsOfEnergy:
+  - position: {x: 0, y: 0}
+    currentEnergy: 0
+    basicEnergy: 1000
+  - position: {x: 99, y: 99}
+    currentEnergy: 0
+    basicEnergy: 0
+  sizeOfZoneWithEnergy: 10
+  pointsOfObstaclesLine:
+  - {x: 10, y: 0}
+  - {x: 10, y: 5}
+  - {x: 0, y: 10}
+  - {x: 5, y: 10}
   countOfTicksInIteration: 100
-  iterationsToSkip: 500
+  iterationsToSkip: 50
   currentIterationCount: 0
-  secondsPefFrame: 0.01
+  secondsPefFrame: 0.001
 --- !u!4 &185811588
 Transform:
   m_ObjectHideFlags: 0
@@ -6584,7 +6598,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1677985130
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7,10 +7,12 @@ using UnityEngine;
 
 namespace Assets.Game.Scripts.LifeGame.Environment
 {
-    internal class PointOfEnergy
+    [Serializable]
+    public class PointOfEnergy
     {
         public Vector2Int position;
         public float currentEnergy;
+        public float basicEnergy;
 
         public PointOfEnergy()
         {
@@ -20,6 +22,16 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         {
             this.position = position;
             this.currentEnergy = currentEnergy;
+        }
+        public PointOfEnergy(Vector2Int position)
+        {
+            this.position = position;
+            this.currentEnergy = basicEnergy;
+        }
+        public void Reset()
+        {
+            this.currentEnergy = basicEnergy;
+
         }
     }
 }

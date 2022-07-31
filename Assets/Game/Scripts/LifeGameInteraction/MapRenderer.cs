@@ -80,6 +80,24 @@ public class MapRenderer : MonoBehaviour
                     circle.transform.position = (Vector3)position * gridScale + new Vector3(gridScale/2, gridScale/2,0);
                     circle.SetActive(true);
                 }
+                else if (cell.cellObject != null)
+                {
+                    GameObject circle;
+                    if (usedCirclesInRender.Count <= numberOfUsedCircles)
+                    {
+                        circle = poolOfCircleObjects.GetObjectFromPool();
+                        usedCirclesInRender.Add(circle);
+                    }
+                    else
+                    {
+                        circle = usedCirclesInRender[numberOfUsedCircles];
+                    }
+                    numberOfUsedCircles++;
+                    circle.GetComponent<SpriteRenderer>().color = Color.black;
+                    circle.transform.position = (Vector3)position * gridScale + new Vector3(gridScale / 2, gridScale / 2, 0);
+                    circle.SetActive(true);
+
+                }
             }
         }
         for(int i = numberOfUsedCircles; i < usedCirclesInRender.Count; i++)

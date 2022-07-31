@@ -14,8 +14,10 @@ namespace Assets.Game.Scripts.LifeGame.Environment
     public class EnvironmentController : Singleton<EnvironmentController>
     {
         public const int NUMBER_OF_OBSTACLES = 0;
-        PointOfEnergy[] pointsOfEnergy;
-        public float PoiEnergyCapacity = 100;
+        public PointOfEnergy[] pointsOfEnergy;
+        public int unitPlacementOffset = 20;
+        public int sizeOfZoneWithEnergy = 20;
+        public Vector2Int[] pointsOfObstaclesLine;
 
         MapController mapController;
         PopulationController populationController;
@@ -26,10 +28,10 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         }
         public void Reset()
         {
-            pointsOfEnergy = new PointOfEnergy[] {
-                    //new PointOfEnergy(Vector2Int.zero,PoiEnergyCapacity),
-                    new PointOfEnergy(new Vector2Int(mapController.width - 1, mapController.height - 1),PoiEnergyCapacity)
-                     };
+            foreach (var poi in pointsOfEnergy){
+                poi.Reset();
+            }
+
         }
 
         public void CreateAndPlaceObstaclesOnMap()
@@ -40,6 +42,51 @@ namespace Assets.Game.Scripts.LifeGame.Environment
                 var pos = GetFreeRadnomPosition();
                 obstacle.position = pos;
                 mapController.GetCell(pos).SetCellObject(obstacle);
+            }
+
+
+            List<Vector2Int> positionsOfLine = new List<Vector2Int>();
+            for (int i = 0; i < pointsOfObstaclesLine.Length - 1; i+=2)
+            {
+                Vector2Int startPos = pointsOfObstaclesLine[i];
+                Vector2Int endPos = pointsOfObstaclesLine[i+1];
+
+                float a = Mathf.Infinity;
+                if ((endPos.x - startPos.x) != 0)
+                {
+                    a = (endPos.y - startPos.y) / (float)(endPos.x - startPos.x);
+                }
+                float b = startPos.y - startPos.x * a;
+
+                int xDirection = 1;
+                if (startPos.x > endPos.x)
+                    xDirection = -1;
+
+                int yDirection = 1;
+                if (startPos.y > endPos.y)
+                    yDirection = -1;
+
+                Vector2Int currentPos = startPos;
+                positionsOfLine.Add(currentPos);
+                while (currentPos != endPos)
+                {
+                    float yFromX = a * currentPos.x + b;
+
+                    if (Mathf.Abs(currentPos.y - yFromX) <= 0.5f)
+                    {
+                        currentPos.x += xDirection;
+                    }
+                    else
+                    {
+                        currentPos.y += yDirection;
+                    }
+                    positionsOfLine.Add(currentPos);
+                }
+            }
+
+            foreach (var obstacle in positionsOfLine)
+            {
+                mapController.GetCell(obstacle)?.SetCellObject(new Obstacle(obstacle));
             }
         }
         public void PlaceUnitsOnMap()
@@ -64,14 +111,13 @@ namespace Assets.Game.Scripts.LifeGame.Environment
         Vector2Int GetRadnomPosition()
         {
             return new Vector2Int(
-                UnityEngine.Random.Range(0, mapController.width),
-                UnityEngine.Random.Range(0, mapController.height));
+                UnityEngine.Random.Range(unitPlacementOffset, mapController.width - unitPlacementOffset),
+                UnityEngine.Random.Range(unitPlacementOffset, mapController.height - unitPlacementOffset));
         }
         public void UpdateEnvironmentForTick()
         {
             foreach(var unit in populationController.currentPopulation)
             {
-                int sizeOfZoneWithEnergy = 20;
                 foreach(var point in pointsOfEnergy)
                 {
                     float energy = Mathf.Max(0, sizeOfZoneWithEnergy - GetDistancebetweenPoints(unit.position, point.position));
